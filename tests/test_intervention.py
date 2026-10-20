@@ -98,6 +98,32 @@ class TestAgent:
         assert "ACGS-006" in str(model.received[-1])  # the model receives the reason on its next call
         assert str(result).strip() == "I could not send it."
 
+    def test_block_and_review_match_denies_and_names_only_blocking_rule_as_blocking(self) -> None:
+        # Regression (0.1.0): the review rule was listed under "Blocked by" next to the blocking rule.
+        constitution = Constitution.from_rules(
+            [
+                Rule(
+                    id="T-REVIEW",
+                    text="config changes need review",
+                    severity=Severity.HIGH,
+                    keywords=["billing"],
+                    workflow_action=ViolationAction.REQUIRE_HUMAN_REVIEW,
+                ),
+                Rule(id="T-BLOCK", text="no deletes", severity=Severity.CRITICAL, keywords=["delete everything"]),
+            ],
+            name="mixed",
+        )
+        call = tool_use("update_config", {"service": "billing", "change": "delete everything"})
+        agent, _ = _agent([tool_message(call), text_message("ok")], ACGSIntervention(constitution=constitution))
+        result = agent("go")
+        assert result.stop_reason == "end_turn"
+        assert not result.interrupts
+        assert EXECUTED == []
+        assert _tool_results(agent)[0]["content"][0]["text"] == (
+            "DENIED: Blocked by ACGS rule T-BLOCK (no deletes). "
+            "Review rules that also matched: ACGS rule T-REVIEW (config changes need review)."
+        )
+
     def test_review_pauses_with_interrupt_and_resumes_on_approval(self) -> None:
         call = tool_use("update_config", {"service": "billing", "change": "disable logging"})
         agent, _ = _agent([tool_message(call), text_message("Done.")], ACGSIntervention())

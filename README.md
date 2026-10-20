@@ -164,8 +164,10 @@ why the call was refused. Argument values are not included in the reason.
    | A rule ID not found in the constitution, or an invalid result without a rule | `Deny` |
    | Any exception while reading or evaluating the tool call | `Deny` (fail-closed) |
 
-   A matched blocking rule is never downgraded to review because a review rule matched as well. The handler's
-   `on_error` is `"deny"`, so an exception that escapes the handler is also turned into a denial by Strands.
+   A matched blocking rule is never downgraded to review because a review rule matched as well; the denial reason
+   then lists only the blocking rules after "Blocked by" and names the matched review rules separately. The
+   handler's `on_error` is `"deny"`, so an exception that escapes the handler is also turned into a denial by
+   Strands.
 
 `ACGSIntervention.evaluate(tool_name, tool_input)` returns the underlying `GovernanceDecision`
 (`verdict`, `reason`, `rule_ids`, `warning_rule_ids`, `error`) without running anything.
