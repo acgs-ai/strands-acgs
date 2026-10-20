@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "strands-acgs"
-version = "0.1.0"
+version = "0.1.1"
 description = "ACGS rule-based tool-call governance for Strands Agents, as an intervention handler"
 readme = "README.md"
 requires-python = ">=3.10"
