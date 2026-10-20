@@ -1,0 +1,137 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "strands-acgs"
+version = "0.1.0"
+description = "ACGS rule-based tool-call governance for Strands Agents, as an intervention handler"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Martin Lyu" }]
+keywords = ["strands", "agents", "ai", "intervention", "governance", "acgs"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+dependencies = [
+    "strands-agents>=1.43.0",
+    "acgs-lite>=3.0.1,<4",
+]
+
+[project.urls]
+# The Strands catalog checks that these URLs name the same GitHub owner/repo as the catalog entry's `github` field.
+Homepage = "https://github.com/acgs-ai/strands-acgs"
+Documentation = "https://github.com/acgs-ai/strands-acgs#readme"
+Repository = "https://github.com/acgs-ai/strands-acgs"
+Issues = "https://github.com/acgs-ai/strands-acgs/issues"
+Changelog = "https://github.com/acgs-ai/strands-acgs/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+    "commitizen>=4.0.0,<5.0.0",
+    "hatch",
+    "mypy>=1.15.0,<2.0.0",
+    "pre-commit>=4.0.0,<5.0.0",
+    "pytest>=8.0.0,<10.0.0",
+    "pytest-asyncio>=0.25.0,<2.0.0",
+    "pytest-cov>=6.0.0,<8.0.0",
+    "ruff>=0.11.0,<1.0.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/strands_acgs"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "examples", "README.md", "CHANGELOG.md", "LICENSE", "pyproject.toml"]
+
+[tool.hatch.envs.default]
+installer = "uv"
+dependencies = [
+    "pytest>=8.0.0,<10.0.0",
+    "pytest-asyncio>=0.25.0,<2.0.0",
+    "pytest-cov>=6.0.0,<8.0.0",
+    "ruff>=0.11.0,<1.0.0",
+    "mypy>=1.15.0,<2.0.0",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args}"
+cov = "pytest --cov=strands_acgs --cov-report=term-missing --cov-fail-under=95 {args}"
+lint = ["ruff check src tests examples", "ruff format --check src tests examples"]
+format = ["ruff check --fix --exit-zero src tests examples", "ruff format src tests examples"]
+fmt = ["format"]
+typecheck = "mypy src"
+prepare = ["format", "lint", "typecheck", "cov"]
+
+# Run the suite against the oldest supported versions of strands-agents and acgs-lite.
+[tool.hatch.envs.min]
+template = "default"
+python = "3.10"
+extra-dependencies = ["strands-agents==1.43.0", "acgs-lite==3.0.1"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+include = ["src/**/*.py", "tests/**/*.py", "examples/**/*.py"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "ANN",  # annotations
+    "D",    # pydocstyle
+    "S",    # bandit
+    "SIM",  # simplify
+    "RUF",  # ruff-specific
+    "PT",   # pytest style
+    "C4",   # comprehensions
+]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D", "ANN", "S101"]
+"examples/**" = ["D", "ANN", "T201"]
+# _governance.py is kept byte-identical with the copy in acgs-haystack, which follows Haystack's docstring style.
+"src/strands_acgs/_governance.py" = ["D212", "RUF100"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "src"]
+addopts = "--strict-markers --doctest-modules --import-mode=importlib"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+source = ["strands_acgs"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "pep621"
+tag_format = "v$version"
+update_changelog_on_bump = true
+major_version_zero = true
