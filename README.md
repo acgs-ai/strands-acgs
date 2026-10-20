@@ -1,5 +1,6 @@
 # strands-acgs
 
+[![CI](https://github.com/acgs-ai/strands-acgs/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/acgs-ai/strands-acgs/actions/workflows/ci.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/strands-acgs.svg)](https://pypi.org/project/strands-acgs)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/strands-acgs.svg)](https://pypi.org/project/strands-acgs)
 
