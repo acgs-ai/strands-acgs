@@ -24,7 +24,7 @@ classifiers = [
 ]
 dependencies = [
     "strands-agents>=1.43.0",
-    "acgs-lite>=3.0.1,<4",
+    "acgs-lite>=3.0.1,<5",
 ]
 
 [project.urls]
