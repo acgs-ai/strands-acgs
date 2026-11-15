@@ -28,11 +28,36 @@ pip install strands-acgs
 
 Requires Python 3.10+, `strands-agents>=1.43.0` (the first release with interventions) and `acgs-lite>=3.0.1,<5`.
 
+### Compatibility
+
+| Component | Supported range | 0.2.0 validation |
+|---|---|---|
+| acgs-lite | `>=3.0.1,<5` | 4.0.0 tested in the default Hatch environment (latest allowed); 3.0.1 floor tested by the CI `test-min` job using the `min` environment |
+| Strands Agents | `>=1.43.0` | 1.65.0 in the default Hatch environment; 1.43.0 in `min` |
+| Python | `>=3.10` | CI tests Python 3.10–3.13; strict typing targets Python 3.10 |
+
+This project has no lockfile. The adapter formats tool arguments as text and calls `GovernanceEngine.validate`;
+it does not select the production authorization profile or issue signed execution receipts. Its text formatter
+renders bytes/bytearray as scalar values for rule matching, including inside nested arguments.
+
 acgs-lite 4 is a major release. Its production profile of `GovernedCallable` requires an Ed25519
 receipt signer, governed payloads are JSON-only, and `GovernedAgent` no longer passes per-call keyword arguments to
 rule conditions (see the [acgs-lite changelog](https://github.com/acgs-ai/acgs-lite/blob/main/CHANGELOG.md)). This
 adapter works with both majors, but a fresh environment installs the newest version allowed. To stay on 3.x, also
 require `"acgs-lite<4"`, for example `pip install strands-acgs "acgs-lite<4"`.
+
+### Offline deny-and-audit example
+
+Run [examples/deny_and_audit.py](examples/deny_and_audit.py) without an API key or network access:
+
+```console
+hatch run python examples/deny_and_audit.py
+```
+
+A scripted model requests one allowed note and one denied note through `ACGSIntervention`. Only the allowed
+tool call executes, then the example prints both governance decisions (tool, verdict, reason and rule IDs).
+The application trail omits argument values and is kept in memory; it is not a signed receipt or a durable
+engine audit log.
 
 ## Usage
 
